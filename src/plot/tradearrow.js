@@ -3,7 +3,7 @@
 module.exports = function(d3_select, d3_functor, d3_mouse, d3_dispatch, accessor_trade, plot, plotMixin, svg_arrow) {  // Injected dependencies
   return function() { // Closure function
     var p = {},  // Container for private, direct access mixed in variables
-        dispatch = d3_dispatch('mouseenter', 'mouseout'),
+        dispatch = d3_dispatch('mouseenter', 'mouseout', 'click'),
         y = function(d) { return p.yScale(p.accessor.p(d)); },
         svgArrow = svg_arrow().orient(function(d) { return p.accessor.t(d) === 'buy' ? 'up' : 'down'; }),
         arrowGenerator;
@@ -26,6 +26,10 @@ module.exports = function(d3_select, d3_functor, d3_mouse, d3_dispatch, accessor
           d3_select(this.parentNode).selectAll('path.highlight').datum([]).attr('d', null).attr('class', 'highlight');
           var nearest = findNearest(data, d3_mouse(this)[0]);
           dispatch.call('mouseout', this, nearest.d, nearest.i);
+        }).on('click', function(data) {
+          var nearest = findNearest(data, d3_mouse(this)[0]);
+          d3_select(this.parentNode).select('path.highlight').datum(nearest.d).attr('d', svgArrow).call(classed, classes);
+          dispatch.call('click', this, nearest.d, nearest.i);
         });
 
       tradearrow.refresh(g);
